@@ -14,5 +14,19 @@ const sendWhatsappMessage = async (body, token) => {
     return data
   }
 
-module.exports = sendWhatsappMessage
+// Parse webhook body recieved from Whatsapp
+const parseWhatsappWebhook = (event) => {
+  let webhookBody
+  event.entry.forEach(function (entry) {
+    let webhookEvent = entry.changes[0].value.messages[0]
+    webhookBody = webhookEvent
+    webhookBody.whatsappId = entry.id
+  })
+  return webhookBody
+}
+
+module.exports = {
+  sendWhatsappMessage,
+  parseWhatsappWebhook
+}
   

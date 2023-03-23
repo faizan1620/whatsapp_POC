@@ -41,6 +41,12 @@ app.post('/whatsapp', bodyParser.json(), async (req, res) => {
   
   app.post("/whatsapp/webhook", function (request, response) {
     console.log('Incoming webhook: ' + JSON.stringify(request.body));
+    const webhook = parseWhatsappWebhook(request.body)
+    const { text, from, whatsappId } = webhook
+    console.log("webhook=",webhook)
+    console.log("Id=",whatsappId)
+    console.log("sender=",from)
+    console.log("message=",text)
     response.sendStatus(200);
   });
 
