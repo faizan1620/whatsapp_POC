@@ -20,7 +20,7 @@ const parseWhatsappWebhook = (event) => {
   event.entry.forEach(function (entry) {
     let webhookEvent = entry.changes[0].value.messages[0]
     webhookBody = webhookEvent
-    webhookBody.whatsappId = entry.id
+    webhookBody.to =  entry.changes[0].value.metadata.display_phone_number
   })
   return webhookBody
 }

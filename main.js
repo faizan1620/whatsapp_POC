@@ -4,12 +4,14 @@ const app = express()
 
 const cors = require('cors')
 const bodyParser = require('body-parser')
-const sendWhatsappMessage = require('./util/whatsapp')
+const { sendWhatsappMessage, parseWhatsappWebhook } = require('./util/whatsapp')
 const { WHATSAPP_ACCESS_TOKEN, WHATSAPP_VERIFY_TOKEN } = process.env
 
 app.use(cors({ credentials: true }))
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json())
+
+SOURCE = 'whatsapp'
 
 app.post('/whatsapp', bodyParser.json(), async (req, res) => {
     let body = req.body
@@ -40,13 +42,27 @@ app.post('/whatsapp', bodyParser.json(), async (req, res) => {
   });
   
   app.post("/whatsapp/webhook", function (request, response) {
-    console.log('Incoming webhook: ' + JSON.stringify(request.body));
+    let card = {}
     const webhook = parseWhatsappWebhook(request.body)
-    const { text, from, whatsappId } = webhook
-    console.log("webhook=",webhook)
-    console.log("Id=",whatsappId)
-    console.log("sender=",from)
-    console.log("message=",text)
+    const { text, from, to } = webhook
+
+    if(!webhook){
+      console.log("Error in parsing incoming webhook")
+      res.sendStatus(404)
+      return
+    }
+
+    if(!text.body || !from){
+      console.log("Messsage could not received")
+      res.sendStatus(404)
+      return
+    }
+
+    card.source = SOURCE
+    card.to = to
+    card.from = from
+    card.message = text.body
+    console.log('Incoming webhook: ' + JSON.stringify(card));
     response.sendStatus(200);
   });
 
